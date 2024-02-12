@@ -84,4 +84,3 @@ git
   .catch((err) => {
     console.error("Error checking out 'main' branch:", err);
   });
- 
