@@ -1,11 +1,12 @@
 import jsonfile from "jsonfile";
 import moment from "moment";
 import simpleGit from "simple-git";
-import random from "random";
 
 const git = simpleGit();
 const path = "./data.json";
-const totalCommits = 10000; // Adjust this number as needed
+const startDate = moment("2015-01-01");
+const endDate = moment(); // Current date
+const commitsPerDay = 1; // You can increase this if needed
 
 function generateRandomMessage() {
   const messages = [
@@ -20,30 +21,30 @@ function generateRandomMessage() {
   return messages[Math.floor(Math.random() * messages.length)];
 }
 
-function getRandomDateInRange(startDate, endDate) {
-  const start = moment(startDate).valueOf();
-  const end = moment(endDate).valueOf();
-  const randomTimestamp = random.int(start, end);
-  return moment(randomTimestamp).format();
-}
-
 (async () => {
   try {
-    // Checkout the target branch
     await git.checkout("main");
 
-    for (let i = 0; i < totalCommits; i++) {
-      const date = getRandomDateInRange("2024-10-01", "2025-06-27");
-      const data = { date };
+    let date = moment(startDate);
 
-      console.log(`Commit #${i + 1} at ${date}`);
+    while (date.isSameOrBefore(endDate)) {
+      for (let i = 0; i < commitsPerDay; i++) {
+        const commitTime = date
+          .clone()
+          .hour(10 + i)
+          .minute(0)
+          .second(0); // e.g., 10:00 AM, 11:00 AM...
+        const formattedDate = commitTime.format();
 
-      await jsonfile.writeFile(path, data); // Write dummy content
-      await git.add([path]); // Stage file
-      await git.commit(generateRandomMessage(), {
-        // Commit with random message
-        "--date": date,
-      });
+        const data = { date: formattedDate };
+        console.log(`Committing on: ${formattedDate}`);
+
+        await jsonfile.writeFile(path, data);
+        await git.add([path]);
+        await git.commit(generateRandomMessage(), { "--date": formattedDate });
+      }
+
+      date.add(1, "day"); // move to next day
     }
 
     console.log("All commits done. Pushing to origin...");
