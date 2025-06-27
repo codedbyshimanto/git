@@ -5,7 +5,7 @@ import random from "random";
 
 const git = simpleGit();
 const path = "./data.json";
-const totalCommits = 500; // Adjust this number as needed
+const totalCommits = 50; // Adjust this number as needed
 
 function generateRandomMessage() {
   const messages = [
