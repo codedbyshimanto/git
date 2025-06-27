@@ -5,26 +5,8 @@ import random from "random";
 
 const git = simpleGit();
 const path = "./data.json";
+const totalCommits = 500; // Reduce this for sanity/testing
 
-// Function to mark a commit with a given random date
-const markCommit = (x, y) => {
-  const date = moment()
-    .subtract(1, "y")
-    .add(1, "d")
-    .add(x, "w")
-    .add(y, "d")
-    .format();
-
-  const data = {
-    date: date,
-  };
-
-  jsonfile.writeFile(path, data, () => {
-    git.add([path]).commit(date, { "--date": date }).push("origin", "main"); // Push to main branch
-  });
-};
-
-// Function to generate a random commit message
 function generateRandomMessage() {
   const messages = [
     "Random commit",
@@ -35,52 +17,34 @@ function generateRandomMessage() {
     "Refactored code",
     "Added new features",
   ];
-  const randomIndex = Math.floor(Math.random() * messages.length);
-  return messages[randomIndex];
+  return messages[Math.floor(Math.random() * messages.length)];
 }
 
-// Async function to make multiple commits
-const makeCommits = async (n) => {
-  if (n === 0) return git.push("origin", "main"); // Ensure to push to main
+(async () => {
+  try {
+    await git.checkout("main");
 
-  const x = random.int(0, 54);
-  const y = random.int(0, 6);
-  const date = moment()
-    .subtract(2, "y")
-    .add(1, "d")
-    .add(x, "w")
-    .add(y, "d")
-    .format();
+    for (let i = 0; i < totalCommits; i++) {
+      const x = random.int(0, 54);
+      const y = random.int(0, 6);
+      const date = moment()
+        .subtract(2, "y")
+        .add(1, "d")
+        .add(x, "w")
+        .add(y, "d")
+        .format();
 
-  const data = {
-    date: date,
-  };
+      const data = { date };
+      console.log(`Commit #${i + 1} at ${date}`);
 
-  console.log("Commit date:", date);
+      await jsonfile.writeFile(path, data);
+      await git.add([path]);
+      await git.commit(generateRandomMessage(), { "--date": date });
+    }
 
-  await jsonfile.writeFile(path, data);
-
-  // Commit with random message and custom date
-  await git.add([path]).commit(generateRandomMessage(), { "--date": date });
-
-  // Recursively call makeCommits to handle the next commit
-  return makeCommits(n - 1);
-};
-
-// Ensure you're on the main branch before starting the commits
-git
-  .checkout("main")
-  .then(() => {
-    // Execute the function to make 100 commits
-    makeCommits(100000)
-      .then(() => {
-        console.log("All commits completed, pushing changes...");
-        git.push("origin", "main"); // Push to main branch after all commits
-      })
-      .catch((err) => {
-        console.error("Error making commits:", err);
-      });
-  })
-  .catch((err) => {
-    console.error("Error checking out 'main' branch:", err);
-  });
+    console.log("All commits done. Pushing to origin...");
+    await git.push("origin", "main");
+  } catch (err) {
+    console.error("Error:", err);
+  }
+})();
