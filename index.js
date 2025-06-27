@@ -5,7 +5,7 @@ import random from "random";
 
 const git = simpleGit();
 const path = "./data.json";
-const totalCommits = 50; // Adjust this number as needed
+const totalCommits = 1000; // Adjust this number as needed
 
 function generateRandomMessage() {
   const messages = [
@@ -33,7 +33,7 @@ function getRandomDateInRange(startDate, endDate) {
     await git.checkout("main");
 
     for (let i = 0; i < totalCommits; i++) {
-      const date = getRandomDateInRange("2022-01-01", "2022-02-28");
+      const date = getRandomDateInRange("2015-01-01", "2025-06-27");
       const data = { date };
 
       console.log(`Commit #${i + 1} at ${date}`);
