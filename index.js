@@ -72,7 +72,7 @@ git
   .checkout("main")
   .then(() => {
     // Execute the function to make 100 commits
-    makeCommits(10)
+    makeCommits(100000)
       .then(() => {
         console.log("All commits completed, pushing changes...");
         git.push("origin", "main"); // Push to main branch after all commits
