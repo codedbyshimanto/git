@@ -5,7 +5,7 @@ import random from "random";
 
 const git = simpleGit();
 const path = "./data.json";
-const totalCommits = 500; // Reduce this for sanity/testing
+const totalCommits = 500; // Adjust this number as needed
 
 function generateRandomMessage() {
   const messages = [
@@ -20,26 +20,30 @@ function generateRandomMessage() {
   return messages[Math.floor(Math.random() * messages.length)];
 }
 
+function getRandomDateInRange(startDate, endDate) {
+  const start = moment(startDate).valueOf();
+  const end = moment(endDate).valueOf();
+  const randomTimestamp = random.int(start, end);
+  return moment(randomTimestamp).format();
+}
+
 (async () => {
   try {
+    // Checkout the target branch
     await git.checkout("main");
 
     for (let i = 0; i < totalCommits; i++) {
-      const x = random.int(0, 54);
-      const y = random.int(0, 6);
-      const date = moment()
-        .subtract(2, "y")
-        .add(1, "d")
-        .add(x, "w")
-        .add(y, "d")
-        .format();
-
+      const date = getRandomDateInRange("2022-01-01", "2022-02-28");
       const data = { date };
+
       console.log(`Commit #${i + 1} at ${date}`);
 
-      await jsonfile.writeFile(path, data);
-      await git.add([path]);
-      await git.commit(generateRandomMessage(), { "--date": date });
+      await jsonfile.writeFile(path, data); // Write dummy content
+      await git.add([path]); // Stage file
+      await git.commit(generateRandomMessage(), {
+        // Commit with random message
+        "--date": date,
+      });
     }
 
     console.log("All commits done. Pushing to origin...");
